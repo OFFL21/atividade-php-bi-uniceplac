@@ -1,22 +1,16 @@
 <?php
-/**
- * Atividade Prática: Desenvolvimento de Dashboard de BI 
- * Disciplina: Programação Orientada a Software Básica
- * Professor: Weverson Garcia Medeiros 
- */
-
 
 function formatarMoeda($valor) {
-   
     return "R$ " . number_format($valor, 2, ',', '.');
 }
 
-
 function analisarDesempenho($vendaItem, $faturamentoTotal) {
-   
+    if ($faturamentoTotal <= 0) {
+        return "ALERTA: Faturamento inválido";
+    }
+
     $porcentagem = ($vendaItem / $faturamentoTotal) * 100;
 
-  
     if ($porcentagem < 10) {
         return "ALERTA: Baixa Conversão";
     } else {
@@ -24,37 +18,34 @@ function analisarDesempenho($vendaItem, $faturamentoTotal) {
     }
 }
 
-
 function gerarCardHTML($nome, $preco, $mensagemBI) {
+    $nomeSeguro = htmlspecialchars($nome, ENT_QUOTES, 'UTF-8');
+    $mensagemSegura = htmlspecialchars($mensagemBI, ENT_QUOTES, 'UTF-8');
     
-    $nomeSeguro = htmlspecialchars($nome);
-    
-   
-    $html = "<div style='border: 1px solid #333; padding: 15px; border-radius: 8px; width: 200px; font-family: sans-serif;'>";
-    $html .= "<h3 style='margin-top:0;'>Product: " . $nomeSeguro . "</h3>";
-    $html .= "<p>Preço: " . $preco . "</p>";
-    $html .= "<p style='font-weight: bold;'>Status: " . $mensagemBI . "</p>";
-    $html .= "</div>";
-    
+    $precoFormatado = formatarMoeda($preco);
+    $corAlerta = ($mensagemBI === "ALERTA: Baixa Conversão") ? "#ff4c4c" : "#4caf50";
+
+    $html = "
+    <div style='border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 10px; font-family: sans-serif; width: 250px; display: inline-block; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);'>
+        <h3 style='margin-top: 0; color: #333;'>{$nomeSeguro}</h3>
+        <p style='font-size: 1.2em; color: #555;'><strong>{$precoFormatado}</strong></p>
+        <div style='background-color: {$corAlerta}; color: #fff; padding: 10px; text-align: center; border-radius: 5px; font-weight: bold;'>
+            {$mensagemSegura}
+        </div>
+    </div>
+    ";
+
     return $html;
 }
 
+$faturamentoMensal = 50000.00;
 
-$faturamentoTotal = 5000.00; 
+$vendasPizza = 12000.00;
+$statusPizza = analisarDesempenho($vendasPizza, $faturamentoMensal);
+echo gerarCardHTML("Pizza Margherita", 55.90, $statusPizza);
 
-
-$prod1_nome = "Suco de Limão";
-$prod1_vendas = 200.00; 
-
-
-$prod2_nome = "Hambúrguer Gourmet";
-$prod2_vendas = 1500.00; 
-
-echo "<h2>Dashboard de BI - Restaurante</h2>";
-
-
-echo gerarCardHTML($prod1_nome, formatarMoeda(10.00), analisarDesempenho($prod1_vendas, $faturamentoTotal));
-echo "<br>";
-echo gerarCardHTML($prod2_nome, formatarMoeda(45.00), analisarDesempenho($prod2_vendas, $faturamentoTotal));
+$vendasEmpadao = 3500.00; 
+$statusEmpadao = analisarDesempenho($vendasEmpadao, $faturamentoMensal);
+echo gerarCardHTML("Empadão de Frango", 18.50, $statusEmpadao);
 
 ?>
